@@ -1,5 +1,11 @@
 package com.example.wifiscan
 
+import android.graphics.Typeface
+import android.graphics.drawable.ColorDrawable
+import android.text.Spannable
+import android.text.SpannableString
+import android.text.style.StyleSpan
+import android.view.View
 import android.app.Activity
 import android.os.Bundle
 import android.view.ViewGroup
@@ -28,8 +34,22 @@ class MainActivity : Activity() {
             setPadding(0, pad / 2, 0, pad / 2)
         }
         val list = ListView(this)
-        adapter = ArrayAdapter(this, android.R.layout.simple_list_item_1, items)
-        list.adapter = adapter
+        val vPad = (14 * resources.displayMetrics.density).toInt()
+		adapter = object : ArrayAdapter<String>(this@MainActivity, android.R.layout.simple_list_item_1, items) {
+			override fun getView(position: Int, convertView: View?, parent: ViewGroup): View {
+				val tv = super.getView(position, convertView, parent) as TextView
+				val text = getItem(position) ?: ""
+				val end = text.indexOf("  -  ").let { if (it < 0) text.length else it }
+				val s = SpannableString(text)
+				s.setSpan(StyleSpan(Typeface.BOLD), 0, end, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE)
+				tv.text = s
+				tv.setPadding(0, vPad, 0, vPad)
+				return tv
+			}
+		}
+		list.adapter = adapter
+		list.divider = ColorDrawable(0x33000000)
+		list.dividerHeight = 2
 
         root.addView(button)
         root.addView(status)
